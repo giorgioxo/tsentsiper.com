@@ -83,8 +83,8 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     // Calculate how many stacks fit horizontally
     // When menu is open, use full width minus margins (32px on each side)
     const availableWidth = this.isMenuOpen ? window.innerWidth - 64 : window.innerWidth - 300 - 35;
-    const stackWidth = this.isMenuOpen ? 112 : 140; // 20% smaller when menu open
-    const stackGap = 104; // Column gap 104px
+    const stackWidth = this.isMenuOpen ? 84 : 140; // 60% of 140px = 84px when menu open
+    const stackGap = this.isMenuOpen ? 0 : 104; // No gap when menu open (auto distribution)
 
     // Calculate maximum stacks that fit
     let maxStacks = 1;

@@ -14,10 +14,10 @@
 
 /* When parent content is scaled (menu is open) */
 :host-context(.scaled) .content-grid {
-  gap: 104px; /* Column gap 104px */
-  margin: 32px; /* 32px margins on all sides */
+  gap: 0; /* Remove fixed gap */
+  margin: 32px; /* 32px margins on all sides - perfect distance from walls */
   height: calc(100vh - 64px); /* Account for 32px top and bottom margins */
-  justify-content: flex-start; /* Start from left when sidebar is hidden */
+  justify-content: center; /* Center the content */
   width: calc(100vw - 64px); /* Full width minus 32px margins */
 }
 
@@ -35,7 +35,9 @@
 /* When menu is open - apply smaller sizing */
 :host-context(.scaled) .stack {
   gap: 60px; /* Row gap 60px when menu is open */
-  max-width: 112px; /* 20% smaller: 140px * 0.8 = 112px */
+  width: 60%; /* 60% of real size */
+  flex: 0 0 auto; /* Auto sizing */
+  margin: 0 auto; /* Auto margins to center and create 32px from walls */
 }
 
 .text-item {
