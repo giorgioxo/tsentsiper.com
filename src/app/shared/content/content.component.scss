@@ -9,34 +9,45 @@
   position: relative;
   justify-content: flex-end; /* Align stacks to the right */
   align-items: flex-start; /* Align to top */
-  transition: gap 0.5s ease-in-out;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
 }
 
 /* When parent content is scaled (menu is open) */
 :host-context(.scaled) .content-grid {
-  gap: calc(104px * 1.15); /* Increase gap by 15% */
+  gap: 104px; /* Column gap 104px */
+  margin: 32px; /* 32px margins on all sides */
+  height: calc(100vh - 64px); /* Account for 32px top and bottom margins */
+  justify-content: flex-start; /* Start from left when sidebar is hidden */
+  width: calc(100vw - 64px); /* Full width minus 32px margins */
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 32px; /* Gap between items */
+  gap: 32px; /* Gap between items - normal size */
   max-width: 140px;
   height: 100%;
   flex-shrink: 0; /* Don't shrink stacks */
   overflow: visible;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
+}
+
+/* When menu is open - apply smaller sizing */
+:host-context(.scaled) .stack {
+  gap: 60px; /* Row gap 60px when menu is open */
+  max-width: 112px; /* 20% smaller: 140px * 0.8 = 112px */
 }
 
 .text-item {
   font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-size: 12px;
+  font-size: 12px; /* Normal size */
   line-height: 130%;
   letter-spacing: 0%;
   font-variant-numeric: lining-nums proportional-nums;
   color: #1C1C1C;
-  will-change: transform;
+  will-change: transform, font-size, height;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);
@@ -45,8 +56,15 @@
   white-space: pre-line;
   padding: 0;
   margin: 0;
-  height: 50px; /* Explicit height to match calculation */
+  height: 50px; /* Normal height */
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
+}
+
+/* When menu is open - apply smaller sizing */
+:host-context(.scaled) .text-item {
+  font-size: 9.6px; /* 20% smaller: 12px * 0.8 = 9.6px */
+  height: 40px; /* 20% smaller: 50px * 0.8 = 40px */
 }

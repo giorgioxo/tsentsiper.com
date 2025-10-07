@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MenuService } from '../../core/menu.service';
 
 @Component({
   selector: 'app-layout',
@@ -11,7 +12,10 @@ import { RouterOutlet } from '@angular/router';
 export class LayoutComponent {
   isNavigationMenuOpen = false;
 
+  constructor(private menuService: MenuService) {}
+
   toggleNavigationMenu() {
     this.isNavigationMenuOpen = !this.isNavigationMenuOpen;
+    this.menuService.setMenuOpen(this.isNavigationMenuOpen);
   }
 }

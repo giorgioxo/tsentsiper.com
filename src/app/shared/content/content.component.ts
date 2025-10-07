@@ -1,6 +1,8 @@
-import { Component, OnInit, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../core/service';
+import { MenuService } from '../../core/menu.service';
+import { Subscription } from 'rxjs';
 
 interface Stack {
   items: string[];
@@ -15,12 +17,14 @@ interface Stack {
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.scss'],
 })
-export class ContentComponent implements OnInit, AfterViewInit {
+export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   allData: string[] = [];
   stacks: Stack[] = [];
+  private isMenuOpen = false;
+  private menuSubscription?: Subscription;
   private scrollPosition = 0;
-  private itemHeight = 50;
-  private itemGap = 32;
+  private itemHeight = 50; // Normal height
+  private itemGap = 32; // Normal gap
   private viewportHeight = 1200;
   private itemsPerStack = 0;
   private scrollVelocity = 0;
@@ -30,10 +34,26 @@ export class ContentComponent implements OnInit, AfterViewInit {
   private friction = 0.95;
   private minVelocity = 0.1;
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService, private menuService: MenuService) {}
 
   ngOnInit() {
     this.allData = this.dataService.getProjectData();
+    
+    // Subscribe to menu state changes
+    this.menuSubscription = this.menuService.isMenuOpen$.subscribe(isOpen => {
+      this.isMenuOpen = isOpen;
+      // Recalculate stacks when menu state changes
+      setTimeout(() => {
+        this.calculateItemsPerStack();
+        this.initializeStacks();
+      }, 0);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.menuSubscription) {
+      this.menuSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -52,16 +72,19 @@ export class ContentComponent implements OnInit, AfterViewInit {
 
   private calculateItemsPerStack() {
     // Calculate how many items fit in viewport height with gaps
-    const itemHeightWithGap = this.itemHeight + this.itemGap;
+    // Use different values based on menu state
+    const currentItemHeight = this.isMenuOpen ? 40 : 50; // 20% smaller when menu open
+    const currentItemGap = this.isMenuOpen ? 60 : 32; // Different gap when menu open
+    const itemHeightWithGap = currentItemHeight + currentItemGap;
     this.itemsPerStack = Math.floor(this.viewportHeight / itemHeightWithGap);
   }
 
   private calculateNumberOfStacks() {
     // Calculate how many stacks fit horizontally
-    // Available width = viewport width - sidebar width (300px) - margins (35px right)
-    const availableWidth = window.innerWidth - 300 - 35;
-    const stackWidth = 140; // max-width of each stack
-    const stackGap = 104; // gap between stacks
+    // When menu is open, use full width minus margins (32px on each side)
+    const availableWidth = this.isMenuOpen ? window.innerWidth - 64 : window.innerWidth - 300 - 35;
+    const stackWidth = this.isMenuOpen ? 112 : 140; // 20% smaller when menu open
+    const stackGap = 104; // Column gap 104px
 
     // Calculate maximum stacks that fit
     let maxStacks = 1;
@@ -204,7 +227,10 @@ export class ContentComponent implements OnInit, AfterViewInit {
 
   private updateStacks() {
     // Calculate base scroll offset using item height with gap
-    const itemHeightWithGap = this.itemHeight + this.itemGap;
+    // Use different values based on menu state
+    const currentItemHeight = this.isMenuOpen ? 40 : 50;
+    const currentItemGap = this.isMenuOpen ? 60 : 32;
+    const itemHeightWithGap = currentItemHeight + currentItemGap;
     const baseOffset = Math.floor(this.scrollPosition / itemHeightWithGap);
 
     this.stacks.forEach((stack, stackIndex) => {
@@ -234,7 +260,10 @@ export class ContentComponent implements OnInit, AfterViewInit {
   }
 
   getItemTransform(index: number, stackIndex: number): string {
-    const itemHeightWithGap = this.itemHeight + this.itemGap;
+    // Use different values based on menu state
+    const currentItemHeight = this.isMenuOpen ? 40 : 50;
+    const currentItemGap = this.isMenuOpen ? 60 : 32;
+    const itemHeightWithGap = currentItemHeight + currentItemGap;
     const fractionalScroll =
       (this.scrollPosition % itemHeightWithGap) / itemHeightWithGap;
     const stack = this.stacks[stackIndex];

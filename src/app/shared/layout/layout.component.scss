@@ -12,7 +12,7 @@
   padding: 35px;
   flex-shrink: 0;
   position: relative;
-  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
 }
 
 .sidebar.hidden {
@@ -64,12 +64,14 @@
 .content {
   flex: 1;
   overflow: visible;
-  transition: transform 0.5s ease-in-out;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
 }
 
 .content.scaled {
-  transform: scale(0.5);
-  transform-origin: center;
+  width: 100vw; /* Full viewport width when sidebar is hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 /* Navigation Menu */
@@ -86,7 +88,7 @@
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
 }
 
 .navigation-menu.show {
@@ -103,12 +105,12 @@
   letter-spacing: 0%;
   font-variant-numeric: lining-nums proportional-nums;
   color: #FF0004;
-  transform: rotate(30deg);
+  transform: rotate(-30deg);
   margin: 20px 0;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
   
   &:hover {
-    transform: rotate(30deg) scale(1.1);
+    transform: rotate(-30deg) scale(1.1);
   }
 }

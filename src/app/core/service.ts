@@ -6,7 +6,114 @@ import { Injectable } from '@angular/core';
 export class DataService {
   private projectData: string[] = [
    
- 
+    `154
+  Self-initiated: Comprehensive research of an ordinary residential building`,
+    `153
+  Major grocery store chain: Self-checkout process redesign`,
+    `152
+  Lifestyle media publisher: Openair music and culture festival`,
+    `151
+  Telemetrics manufacturer: Digital ecosystem strategy for fleet owners`,
+    `150
+  Mixed-use developer: Product concept for a 12.4 acres urban redevelopment project`,
+    `149
+  Major grocery store chain: AR in-store experience`,
+    `148
+  Lifestyle media publisher: New food magazine and website`,
+    `147
+  Premium residential developer: Product concept for a 35.3 acres mixed-use suburban brownfield development`,
+    `146
+  Ethnographic museum: Open air exhibition on local history and crafts`,
+    `145
+  Major insurance company: New healthcare insurance product`,
+    `144
+  New luxury hotel: Ground floor destination in the downtown`,
+    `143
+  Lifestyle media publisher: Travel guidebooks series`,
+    `142
+  Express delivery service: Experience and design for a new beauty and self-care goods department`,
+    `141
+  Urban design center: New events space with educational and research programs on urban design`,
+    `140
+  Major grocery store chain: Brand media about food, home and lifestyle`,
+    `139
+  Office developer: User experience for a 2.500.000 sq. ft. suburban Class-A office cluster`,
+    `138
+  Premium residential developer: Services and amenities for a 4.7 acres residential development`,
+    `137
+  Online beauty retailer: New offline flagship beauty and self-care store`,
+    `136
+  Lifestyle media publisher: New travel magazine and website`,
+    `135
+  Midmarket developer: Product concept for a new chain of colivings`,
+    `134
+  New luxury hotel: Branding`,
+    `133
+  Major grocery store chain: Social responsibility strategy with focus on a community building`,
+    `132
+  Lifestyle media publisher: City culture and events magazine`,
+    `131
+  Leading wellness app: Rebranding`,
+    `130
+  Self-initiated: Comprehensive research of an ordinary residential building`,
+    `129
+  Major grocery store chain: Self-checkout process redesign`,
+    `128
+  Lifestyle media publisher: Openair music and culture festival`,
+    `127
+  Telemetrics manufacturer: Digital ecosystem strategy for fleet owners`,
+    `126
+  Mixed-use developer: Product concept for a 12.4 acres urban redevelopment project`,
+    `125
+  Major grocery store chain: AR in-store experience`,
+    `124
+  Lifestyle media publisher: New food magazine and website`,
+    `123
+  Premium residential developer: Product concept for a 35.3 acres mixed-use suburban brownfield development`,
+    `122
+  Ethnographic museum: Open air exhibition on local history and crafts`,
+    `121
+  Major insurance company: New healthcare insurance product`,
+    `120
+  New luxury hotel: Ground floor destination in the downtown`,
+    `119
+  Lifestyle media publisher: Travel guidebooks series`,
+    `118
+  Express delivery service: Experience and design for a new beauty and self-care goods department`,
+    `117
+  Urban design center: New events space with educational and research programs on urban design`,
+    `116
+  Major grocery store chain: Brand media about food, home and lifestyle`,
+    `115
+  Office developer: User experience for a 2.500.000 sq. ft. suburban Class-A office cluster`,
+    `114
+  Premium residential developer: Services and amenities for a 4.7 acres residential development`,
+    `113
+  Online beauty retailer: New offline flagship beauty and self-care store`,
+    `112
+  Lifestyle media publisher: New travel magazine and website`,
+    `111
+  Midmarket developer: Product concept for a new chain of colivings`,
+    `110
+  New luxury hotel: Branding`,
+    `109
+  Major grocery store chain: Social responsibility strategy with focus on a community building`,
+    `108
+  Lifestyle media publisher: City culture and events magazine`,
+    `107
+  Leading wellness app: Rebranding`,
+    `106
+  Self-initiated: Comprehensive research of an ordinary residential building`,
+    `105
+  Major grocery store chain: Self-checkout process redesign`,
+    `104
+  Lifestyle media publisher: Openair music and culture festival`,
+    `103
+  Telemetrics manufacturer: Digital ecosystem strategy for fleet owners`,
+    `102
+  Mixed-use developer: Product concept for a 12.4 acres urban redevelopment project`,
+    `101
+  Major grocery store chain: AR in-store experience`,
     `100
   Leading wellness app: Rebranding`,
     `99
