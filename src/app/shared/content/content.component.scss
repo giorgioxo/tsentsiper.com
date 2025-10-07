@@ -9,6 +9,12 @@
   position: relative;
   justify-content: flex-end; /* Align stacks to the right */
   align-items: flex-start; /* Align to top */
+  transition: gap 0.5s ease-in-out;
+}
+
+/* When parent content is scaled (menu is open) */
+:host-context(.scaled) .content-grid {
+  gap: calc(104px * 1.15); /* Increase gap by 15% */
 }
 
 .stack {

@@ -8,4 +8,10 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  isNavigationMenuOpen = false;
+
+  toggleNavigationMenu() {
+    this.isNavigationMenuOpen = !this.isNavigationMenuOpen;
+  }
+}

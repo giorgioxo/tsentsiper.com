@@ -1,10 +1,10 @@
-<div class="layout-container">
-  <div class="sidebar">
+<div class="layout-container" [class.menu-open]="isNavigationMenuOpen">
+  <div class="sidebar" [class.hidden]="isNavigationMenuOpen">
     <p class="description">
       We are Tsentsiper:<br/> We design products, services, customer experience and brands. We love what we do and we do it well. We are based in London, Warsaw and Kiyv.
     </p>
     <div class="button-group">
-      <span class="action-link">Get Sort</span>
+      <span class="action-link" (click)="toggleNavigationMenu()">Get Sort</span>
       <span class="action-link">Get Projects</span>
     </div>
     <div class="logo">
@@ -23,7 +23,16 @@
         
     </div>
   </div>
-  <div class="content">
+  
+  <!-- Navigation Menu -->
+  <div class="navigation-menu" [class.show]="isNavigationMenuOpen">
+    <div class="menu-item">branding</div>
+    <div class="menu-item">content</div>
+    <div class="menu-item">digital</div>
+    <div class="menu-item">experience</div>
+  </div>
+  
+  <div class="content" [class.scaled]="isNavigationMenuOpen">
     <router-outlet></router-outlet>
   </div>
 </div>
