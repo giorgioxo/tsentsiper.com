@@ -1,0 +1,15 @@
+<div class="content-grid" (scroll)="onScroll($event)">
+  <div 
+    class="stack" 
+    *ngFor="let stack of stacks; let stackIndex = index"
+  >
+    <div 
+      class="text-item" 
+      *ngFor="let item of stack.items; let i = index"
+      [style.transform]="getItemTransform(i, stackIndex)"
+      [style.transition]="getItemTransition(i)"
+    >
+      {{ item }}
+    </div>
+  </div>
+</div>
