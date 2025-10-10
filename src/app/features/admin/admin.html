@@ -1,0 +1,58 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <button (click)="logout()" class="logout-btn">Logout</button>
+  </header>
+
+  <div class="admin-content">
+    <div class="add-item-section">
+      <h2>Add New Item</h2>
+      <div class="add-form">
+        <textarea 
+          [(ngModel)]="newItemText" 
+          placeholder="Enter new item text..."
+          rows="3"
+        ></textarea>
+        <button (click)="addNewItem()" [disabled]="!newItemText.trim()">
+          Add Item
+        </button>
+      </div>
+    </div>
+
+    <div class="items-list-section">
+      <h2>Items List ({{ items.length }} items)</h2>
+      
+      <div class="items-list" #itemsList>
+        <div *ngFor="let item of items; let i = index" class="item-card">
+          <div *ngIf="editingIndex !== i" class="item-content">
+            <div class="item-text">{{ item }}</div>
+            <div class="item-actions">
+              <button (click)="startEdit(i)" class="edit-btn">Edit</button>
+              <button (click)="removeItem(i)" class="remove-btn">Remove</button>
+            </div>
+          </div>
+          
+          <div *ngIf="editingIndex === i" class="edit-form">
+            <textarea 
+              [(ngModel)]="editingItem" 
+              rows="4"
+            ></textarea>
+            <div class="edit-actions">
+              <button (click)="saveEdit()" class="save-btn">Save</button>
+              <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button 
+        *ngIf="showScrollToTop" 
+        (click)="scrollToTop()" 
+        class="scroll-to-top"
+        title="Scroll to top"
+      >
+        ↑
+      </button>
+    </div>
+  </div>
+</div>
