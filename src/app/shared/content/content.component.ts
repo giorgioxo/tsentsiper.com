@@ -22,6 +22,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   stacks: Stack[] = [];
   private isMenuOpen = false;
   private menuSubscription?: Subscription;
+  private dataSubscription?: Subscription;
   private scrollPosition = 0;
   private itemHeight = 50; // Normal height
   private itemGap = 32; // Normal gap
@@ -37,7 +38,15 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private dataService: DataService, private menuService: MenuService) {}
 
   ngOnInit() {
-    this.allData = this.dataService.getProjectData();
+    // Subscribe to backend data stream
+    this.dataSubscription = this.dataService
+      .getProjectDataObservable()
+      .subscribe(data => {
+        this.allData = data || [];
+        // Recalculate layout when new data arrives
+        this.calculateItemsPerStack();
+        this.initializeStacks();
+      });
     
     // Subscribe to menu state changes
     this.menuSubscription = this.menuService.isMenuOpen$.subscribe(isOpen => {
@@ -54,17 +63,23 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.menuSubscription) {
       this.menuSubscription.unsubscribe();
     }
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
     // Wait for DOM to be ready before calculating dimensions
     setTimeout(() => {
+      // Use actual viewport height
+      this.viewportHeight = window.innerHeight || this.viewportHeight;
       this.calculateItemsPerStack();
       this.initializeStacks();
     }, 0);
 
     // Listen for window resize to recalculate stacks
     window.addEventListener('resize', () => {
+      this.viewportHeight = window.innerHeight || this.viewportHeight;
       this.calculateItemsPerStack();
       this.initializeStacks();
     });

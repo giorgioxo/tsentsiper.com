@@ -22,6 +22,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   newItemText: string = '';
   showScrollToTop: boolean = false;
   isLoading: boolean = true;
+  showAddForm: boolean = false;
+  mode: 'manage' | 'add' = 'manage';
+  newProjectText: string = '';
   private dataSubscription?: Subscription;
 
   constructor(
@@ -57,9 +60,38 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
+  setMode(mode: 'manage' | 'add') {
+    this.mode = mode;
+    this.cancelEdit();
+  }
+
+  enterNewProject() {
+    const text = this.newProjectText.trim();
+    if (!text) return;
+    // Add locally and via service
+    this.dataService.addProject(text);
+    this.newProjectText = '';
+  }
+
+  clearNewText() {
+    this.newProjectText = '';
+  }
+
+  saveAllChanges() {
+    // Placeholder for future backend persistence
+    alert('Changes saved (frontend). We will wire backend persistence next.');
+  }
+
   startEdit(index: number) {
     this.editingIndex = index;
     this.editingItem = this.items[index];
+    // Focus the textarea after view update
+    setTimeout(() => {
+      const textarea = document.querySelector('.edit-textarea') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 0);
   }
 
   saveEdit() {

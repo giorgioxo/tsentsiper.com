@@ -65,25 +65,56 @@ export class DataService {
 
   // Add new project
   addProject(project: string): void {
-    const currentData = this.projectDataSubject.value;
-    this.projectDataSubject.next([project, ...currentData]);
+    const text = project?.trim();
+    if (!text) return;
+    this.http.post<ApiResponse>(`${this.apiUrl}/projects`, { text })
+      .pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.projectDataSubject.next(response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('Failed to add project:', error);
+          return of({ success: false, count: 0, data: this.projectDataSubject.value });
+        })
+      )
+      .subscribe();
   }
 
   // Update project by index
   updateProject(index: number, project: string): void {
-    const currentData = [...this.projectDataSubject.value];
-    if (index >= 0 && index < currentData.length) {
-      currentData[index] = project;
-      this.projectDataSubject.next(currentData);
-    }
+    const text = project?.trim();
+    if (!text) return;
+    this.http.put<ApiResponse>(`${this.apiUrl}/projects/${index}`, { text })
+      .pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.projectDataSubject.next(response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('Failed to update project:', error);
+          return of({ success: false, count: 0, data: this.projectDataSubject.value });
+        })
+      )
+      .subscribe();
   }
 
   // Delete project by index
   deleteProject(index: number): void {
-    const currentData = [...this.projectDataSubject.value];
-    if (index >= 0 && index < currentData.length) {
-      currentData.splice(index, 1);
-      this.projectDataSubject.next(currentData);
-    }
+    this.http.delete<ApiResponse>(`${this.apiUrl}/projects/${index}`)
+      .pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.projectDataSubject.next(response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('Failed to delete project:', error);
+          return of({ success: false, count: 0, data: this.projectDataSubject.value });
+        })
+      )
+      .subscribe();
   }
 }

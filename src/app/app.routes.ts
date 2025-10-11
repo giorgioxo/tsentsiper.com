@@ -3,6 +3,7 @@ import { LayoutComponent } from './shared/layout/layout.component';
 import { ContentComponent } from './shared/content/content.component';
 import { LoginComponent } from './features/login/login';
 import { AdminComponent } from './features/admin/admin';
+import { AuthGuard } from './core/auth.guard';
 
 export const routes: Routes = [
   {
@@ -11,7 +12,8 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminComponent
+    component: AdminComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: '',

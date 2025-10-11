@@ -1,67 +1,83 @@
 <div class="admin-container">
-  <header class="admin-header">
-    <h1>Admin Dashboard</h1>
-    <button (click)="logout()" class="logout-btn">Logout</button>
-  </header>
-
-  <div class="admin-content">
-    <div class="add-item-section">
-      <h2>Add New Item</h2>
-      <div class="add-form">
-        <textarea 
-          [(ngModel)]="newItemText" 
-          placeholder="Enter new item text..."
-          rows="3"
-        ></textarea>
-        <button (click)="addNewItem()" [disabled]="!newItemText.trim()">
-          Add Item
+  <div class="admin-layout">
+    <!-- Left Navigation -->
+    <div class="left-nav">
+      <div class="nav-buttons">
+        <button class="nav-btn" [class.active]="mode === 'manage'" (click)="setMode('manage')">
+          Edit or delete project
+        </button>
+        <button class="nav-btn" [class.active]="mode === 'add'" (click)="setMode('add')">
+          Add new project
         </button>
       </div>
     </div>
 
-    <div class="items-list-section">
-      <h2>Items List ({{ items.length }} items)</h2>
-      
-      <div *ngIf="isLoading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Loading data from backend...</p>
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top-right save changes - only show in add mode -->
+      <button *ngIf="mode === 'add'" class="save-changes" (click)="saveAllChanges()">Save changes</button>
+
+      <div *ngIf="isLoading" class="loading">
+        Loading projects...
       </div>
 
-      <div *ngIf="!isLoading && items.length === 0" class="empty-state">
-        <p>No items found. Add your first item above!</p>
-      </div>
-      
-      <div *ngIf="!isLoading && items.length > 0" class="items-list" #itemsList>
-        <div *ngFor="let item of items; let i = index" class="item-card">
-          <div *ngIf="editingIndex !== i" class="item-content">
-            <div class="item-text">{{ item }}</div>
-            <div class="item-actions">
-              <button (click)="startEdit(i)" class="edit-btn">Edit</button>
-              <button (click)="removeItem(i)" class="remove-btn">Remove</button>
+      <div class="projects-wrapper" *ngIf="!isLoading">
+        <!-- Add mode inline form -->
+        <div *ngIf="mode === 'add'" class="project-item add-mode">
+          <div class="project-actions">
+            <div class="action-buttons">
+              <button (click)="enterNewProject()" class="action-btn edit-btn">Enter new project</button>
+              <button (click)="clearNewText()" class="action-btn delete-btn">Delete all text</button>
             </div>
           </div>
-          
-          <div *ngIf="editingIndex === i" class="edit-form">
-            <textarea 
-              [(ngModel)]="editingItem" 
-              rows="4"
+          <div class="project-number">&nbsp;</div>
+          <div class="project-description">
+            <textarea
+              class="add-textarea"
+              placeholder="Enter text..."
+              [(ngModel)]="newProjectText"
             ></textarea>
-            <div class="edit-actions">
-              <button (click)="saveEdit()" class="save-btn">Save</button>
-              <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Projects list -->
+        <div *ngIf="items.length > 0" class="projects-list" #itemsList>
+        <div *ngFor="let item of items; let i = index" class="project-item">
+          <!-- Action buttons -->
+          <div class="project-actions">
+            <div *ngIf="editingIndex !== i" class="action-buttons">
+              <button (click)="startEdit(i)" class="action-btn edit-btn">Edit project</button>
+              <button (click)="removeItem(i)" class="action-btn delete-btn">Delete project</button>
             </div>
+            
+            <div *ngIf="editingIndex === i" class="edit-buttons">
+              <button (click)="saveEdit()" class="action-btn replace-btn">Replace text with new one</button>
+              <button (click)="cancelEdit()" class="action-btn cancel-btn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Project number -->
+          <div class="project-number">{{ items.length - i }}</div>
+
+          <!-- Project description -->
+          <div class="project-description" 
+               [class.editing]="editingIndex === i"
+               [class.edit-mode]="editingIndex === i">
+            <div *ngIf="editingIndex !== i" class="description-text">{{ item }}</div>
+            <textarea *ngIf="editingIndex === i" 
+                      [(ngModel)]="editingItem" 
+                      class="edit-textarea"
+                      (keydown.enter)="saveEdit()"
+                      (keydown.escape)="cancelEdit()"
+                      #editInput></textarea>
           </div>
         </div>
       </div>
-      
-      <button 
-        *ngIf="showScrollToTop" 
-        (click)="scrollToTop()" 
-        class="scroll-to-top"
-        title="Scroll to top"
-      >
-        ↑
-      </button>
+
+      <div *ngIf="!isLoading && items.length === 0 && mode !== 'add'" class="empty-state">
+        No projects found.
+      </div>
+      </div>
     </div>
   </div>
 </div>
