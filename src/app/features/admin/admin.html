@@ -22,7 +22,16 @@
     <div class="items-list-section">
       <h2>Items List ({{ items.length }} items)</h2>
       
-      <div class="items-list" #itemsList>
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading data from backend...</p>
+      </div>
+
+      <div *ngIf="!isLoading && items.length === 0" class="empty-state">
+        <p>No items found. Add your first item above!</p>
+      </div>
+      
+      <div *ngIf="!isLoading && items.length > 0" class="items-list" #itemsList>
         <div *ngFor="let item of items; let i = index" class="item-card">
           <div *ngIf="editingIndex !== i" class="item-content">
             <div class="item-text">{{ item }}</div>

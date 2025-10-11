@@ -1,18 +1,28 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: {
+    username: string;
+    role: string;
+  };
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private apiUrl = environment.apiUrl;
   private tokenSubject = new BehaviorSubject<string | null>(null);
   public token$ = this.tokenSubject.asObservable();
 
-  // Mock credentials
-  private readonly MOCK_USERNAME = 'Admin';
-  private readonly MOCK_PASSWORD = 'TsAdmin123';
-
-  constructor() {
+  constructor(private http: HttpClient) {
     // Check if token exists in localStorage
     const savedToken = localStorage.getItem('auth_token');
     if (savedToken) {
@@ -21,15 +31,23 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<string | null> {
-    // Mock authentication - in real app this would call backend API
-    if (username === this.MOCK_USERNAME && password === this.MOCK_PASSWORD) {
-      const token = this.generateMockToken();
-      localStorage.setItem('auth_token', token);
-      this.tokenSubject.next(token);
-      return of(token);
-    } else {
-      return of(null);
-    }
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, {
+      username,
+      password
+    }).pipe(
+      map(response => {
+        if (response.success && response.token) {
+          localStorage.setItem('auth_token', response.token);
+          this.tokenSubject.next(response.token);
+          return response.token;
+        }
+        return null;
+      }),
+      catchError(error => {
+        console.error('Login failed:', error);
+        throw error;
+      })
+    );
   }
 
   logout(): void {
@@ -43,18 +61,5 @@ export class AuthService {
 
   getToken(): string | null {
     return this.tokenSubject.value;
-  }
-
-  private generateMockToken(): string {
-    // Generate a mock JWT-like token
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({ 
-      sub: 'admin', 
-      iat: Date.now(),
-      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-    }));
-    const signature = btoa('mock-signature-' + Date.now());
-    
-    return `${header}.${payload}.${signature}`;
   }
 }
