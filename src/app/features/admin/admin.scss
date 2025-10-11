@@ -11,7 +11,7 @@
 
 /* Left Navigation */
 .left-nav {
-  position: fixed;
+  position: absolute;
   top: 24px;
   left: 24px;
   z-index: 100;
@@ -27,8 +27,13 @@
   background: transparent;
   border: none;
   color: #FF1E00;
-  font-size: 16px;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   cursor: pointer;
   text-align: left;
   padding: 0 0 0 8px;
@@ -51,46 +56,67 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 200px;
+  margin: 0 auto;
   padding: 24px;
   position: relative;
+  max-width: 1200px; /* Optional: limit max width for better readability */
 }
 
 .loading {
   color: #1C1C1C;
-  font-size: 16px;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   padding: 40px 0;
 }
 
 .empty-state {
   color: #1C1C1C;
-  font-size: 16px;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   padding: 40px 0;
 }
 
 .projects-wrapper {
   position: relative;
   top: 200px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .projects-list {
   display: flex;
   flex-direction: column;
   gap: 40px;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding-right: 10px;
-  scroll-behavior: smooth;
+  height: calc(100vh - 200px);
+  overflow: visible;
+  position: relative;
   transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
 }
 
 .project-item {
+  margin-bottom:32px;
+  border-radius:6px;
   display: flex;
   align-items: flex-start;
-  gap: 104px;
+  gap: 104px; /* 104px gap between columns */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   transition: all 0.8s ease-in-out; /* 0.8 seconds smooth animation */
   opacity: 0;
-  transform: translateY(20px);
   animation: fadeInUp 0.5s ease forwards;
   
   &:hover {
@@ -115,15 +141,20 @@
 .action-buttons, .edit-buttons {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  
 }
 
 .action-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   text-align: left;
   padding: 0;
   transition: opacity 0.3s ease;
@@ -150,17 +181,26 @@
 }
 
 .project-number {
-  color: #1C1C1C;
-  font-size: 16px;
+  margin-bottom: 4px;
   font-weight: 400;
-  min-width: 40px;
+  font-size: 12px;
+  color: #1C1C1C;
 }
 
 .project-description {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  
   color: #1C1C1C;
-  font-size: 16px;
-  line-height: 1.5;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
+  width: 144px;
 }
 
 .description-text {
@@ -175,9 +215,13 @@
   border: none;
   background: transparent;
   color: #1C1C1C;
-  font-size: 16px;
-  font-family: sans-serif;
-  line-height: 1.5;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   outline: none;
   resize: vertical;
 }
@@ -191,25 +235,22 @@
 .add-textarea {
   width: 320px;
   height: 180px;
+  border-radius:6px;
   border: 1px solid #FF1E00;
   background: transparent;
   outline: none;
   color: #1C1C1C;
-  font-size: 16px;
+  font-family: 'Mabry Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  font-variant-numeric: lining-nums proportional-nums;
   padding: 8px;
   resize: vertical;
 }
 
-.save-changes {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  background: transparent;
-  border: none;
-  color: #FF1E00;
-  font-size: 16px;
-  cursor: pointer;
-}
 
 @keyframes fadeInUp {
   from {
@@ -238,9 +279,11 @@
   
   .project-item {
     gap: 20px;
+    
   }
   
   .project-actions {
     min-width: 150px;
+    // row-gap: 32px;
   }
 }

@@ -295,4 +295,20 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   getItemTransition(index: number): string {
     return 'none'; // No CSS transitions, JavaScript handles all animation
   }
+
+  getProjectNumber(stackIndex: number, itemIndex: number): number {
+    // Calculate the global index of this item across all stacks
+    let globalIndex = 0;
+    
+    // Add items from previous stacks
+    for (let i = 0; i < stackIndex; i++) {
+      globalIndex += this.stacks[i].items.length;
+    }
+    
+    // Add current item index
+    globalIndex += itemIndex;
+    
+    // Return the project number (highest numbers first, like admin)
+    return this.allData.length - globalIndex;
+  }
 }

@@ -14,37 +14,37 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Top-right save changes - only show in add mode -->
-      <button *ngIf="mode === 'add'" class="save-changes" (click)="saveAllChanges()">Save changes</button>
 
       <div *ngIf="isLoading" class="loading">
         Loading projects...
       </div>
 
       <div class="projects-wrapper" *ngIf="!isLoading">
-        <!-- Add mode inline form -->
-        <div *ngIf="mode === 'add'" class="project-item add-mode">
-          <div class="project-actions">
-            <div class="action-buttons">
-              <button (click)="enterNewProject()" class="action-btn edit-btn">Enter new project</button>
-              <button (click)="clearNewText()" class="action-btn delete-btn">Delete all text</button>
+        <!-- Projects list with add section included -->
+        <div class="projects-list" #itemsList>
+          <!-- Add mode inline form - show first when in add mode -->
+          <div *ngIf="mode === 'add'" class="project-item add-mode">
+            <div class="project-actions">
+              <div class="action-buttons">
+                <button (click)="enterNewProject()" class="action-btn edit-btn">Enter new project</button>
+                <button (click)="clearNewText()" class="action-btn delete-btn">Delete all text</button>
+              </div>
+            </div>
+            <div class="project-description">
+              <div class="project-number">{{ items.length + 1 }}</div>
+              <textarea
+                class="add-textarea"
+                placeholder="Enter text..."
+                [(ngModel)]="newProjectText"
+              ></textarea>
             </div>
           </div>
-          <div class="project-number">&nbsp;</div>
-          <div class="project-description">
-            <textarea
-              class="add-textarea"
-              placeholder="Enter text..."
-              [(ngModel)]="newProjectText"
-            ></textarea>
-          </div>
-        </div>
 
-        <!-- Projects list -->
-        <div *ngIf="items.length > 0" class="projects-list" #itemsList>
+          <!-- Existing projects -->
+          <div *ngIf="items.length > 0">
         <div *ngFor="let item of items; let i = index" class="project-item">
-          <!-- Action buttons -->
-          <div class="project-actions">
+          <!-- Action buttons - only show in manage mode -->
+          <div class="project-actions" *ngIf="mode === 'manage'">
             <div *ngIf="editingIndex !== i" class="action-buttons">
               <button (click)="startEdit(i)" class="action-btn edit-btn">Edit project</button>
               <button (click)="removeItem(i)" class="action-btn delete-btn">Delete project</button>
@@ -56,13 +56,18 @@
             </div>
           </div>
 
-          <!-- Project number -->
-          <div class="project-number">{{ items.length - i }}</div>
+          <!-- Empty space for add mode to maintain layout -->
+          <div class="project-actions" *ngIf="mode === 'add'">
+            <div class="action-buttons">
+              <!-- Empty space to maintain layout -->
+            </div>
+          </div>
 
-          <!-- Project description -->
+          <!-- Project description with number inside -->
           <div class="project-description" 
                [class.editing]="editingIndex === i"
                [class.edit-mode]="editingIndex === i">
+            <div class="project-number">{{ items.length - i }}</div>
             <div *ngIf="editingIndex !== i" class="description-text">{{ item }}</div>
             <textarea *ngIf="editingIndex === i" 
                       [(ngModel)]="editingItem" 
@@ -72,11 +77,11 @@
                       #editInput></textarea>
           </div>
         </div>
-      </div>
+        </div>
 
-      <div *ngIf="!isLoading && items.length === 0 && mode !== 'add'" class="empty-state">
-        No projects found.
-      </div>
+        <div *ngIf="items.length === 0 && mode !== 'add'" class="empty-state">
+          No projects found.
+        </div>
       </div>
     </div>
   </div>

@@ -4,12 +4,21 @@
     *ngFor="let stack of stacks; let stackIndex = index"
   >
     <div 
-      class="text-item" 
+      class="project-item" 
       *ngFor="let item of stack.items; let i = index"
       [style.transform]="getItemTransform(i, stackIndex)"
       [style.transition]="getItemTransition(i)"
     >
-      {{ item }}
+     
+      <div class="project-content">
+        
+        <div class="project-description">
+          <div class="project-number">
+            {{ getProjectNumber(stackIndex, i) }}
+          </div>
+          {{ item }}
+        </div>
+      </div>
     </div>
   </div>
 </div>
