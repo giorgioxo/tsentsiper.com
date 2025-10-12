@@ -231,11 +231,34 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Clamp to maximum scroll so the last item stays in view
+    const maxScroll = this.getMaxScrollPosition();
+    if (this.scrollPosition > maxScroll) {
+      this.scrollPosition = maxScroll;
+      this.scrollVelocity = 0;
+      this.isAnimating = false;
+      this.updateStacks();
+      return;
+    }
+
     // Update the display
     this.updateStacks();
 
     // Continue animation
     requestAnimationFrame(() => this.momentumAnimation());
+  }
+
+  private getMaxScrollPosition(): number {
+    // Calculate how far we can scroll while keeping the last items visible
+    const numberOfStacks = this.calculateNumberOfStacks();
+    const totalVisibleItems = numberOfStacks * this.itemsPerStack;
+
+    const currentItemHeight = this.isMenuOpen ? 40 : 50;
+    const currentItemGap = 64; // use the same gap used in transforms
+    const itemHeightWithGap = currentItemHeight + currentItemGap;
+
+    const maxBaseOffset = Math.max(0, this.allData.length - totalVisibleItems);
+    return maxBaseOffset * itemHeightWithGap;
   }
 
   onScroll(event: Event) {
