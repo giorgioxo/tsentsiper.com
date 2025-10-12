@@ -9,7 +9,8 @@
       [style.transform]="getItemTransform(i, stackIndex)"
       [style.transition]="getItemTransition(i)"
     >
-      {{ item }}
+      <div class="text-number" *ngIf="getItemNumber(i, stackIndex) as num">{{ num }}</div>
+      <div class="text-body">{{ item }}</div>
     </div>
   </div>
 </div>

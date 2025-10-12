@@ -20,6 +20,8 @@ interface Stack {
 export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   allData: string[] = [];
   stacks: Stack[] = [];
+  // Track the absolute data index shown at each [stackIndex, itemIndex] for numbering
+  private visibleIndexMap: number[][] = [];
   private isMenuOpen = false;
   private menuSubscription?: Subscription;
   private dataSubscription?: Subscription;
@@ -89,7 +91,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     // Calculate how many items fit in viewport height with gaps
     // Use different values based on menu state
     const currentItemHeight = this.isMenuOpen ? 40 : 50; // 20% smaller when menu open
-    const currentItemGap = this.isMenuOpen ? 60 : 32; // Different gap when menu open
+    const currentItemGap = 64; // increased row gap handled by TS transforms
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     this.itemsPerStack = Math.floor(this.viewportHeight / itemHeightWithGap);
   }
@@ -99,7 +101,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     // When menu is open, use full width minus margins (32px on each side)
     const availableWidth = this.isMenuOpen ? window.innerWidth - 64 : window.innerWidth - 300 - 35;
     const stackWidth = this.isMenuOpen ? 84 : 140; // 60% of 140px = 84px when menu open
-    const stackGap = this.isMenuOpen ? 0 : 104; // No gap when menu open (auto distribution)
+    const stackGap = this.isMenuOpen ? 0 : 104; // Column gap logic left as-is
 
     // Calculate maximum stacks that fit
     let maxStacks = 1;
@@ -244,52 +246,61 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     // Calculate base scroll offset using item height with gap
     // Use different values based on menu state
     const currentItemHeight = this.isMenuOpen ? 40 : 50;
-    const currentItemGap = this.isMenuOpen ? 60 : 32;
+    const currentItemGap = 64; // increased row gap handled by TS transforms
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     const baseOffset = Math.floor(this.scrollPosition / itemHeightWithGap);
 
+    this.visibleIndexMap = [];
     this.stacks.forEach((stack, stackIndex) => {
       stack.items = [];
-
+      this.visibleIndexMap[stackIndex] = [];
       // Calculate the starting point for this stack based on scroll
       const stackStartIndex = stackIndex * this.itemsPerStack + baseOffset;
-
       for (let i = 0; i < this.itemsPerStack; i++) {
         let dataIndex: number;
-
         if (stack.direction === 'increasing') {
           dataIndex = stackStartIndex + i;
         } else {
           // For decreasing direction, start from the end and go backwards
           dataIndex = stackStartIndex + this.itemsPerStack - 1 - i;
         }
-
         // Get data if it exists, otherwise show empty
         if (dataIndex >= 0 && dataIndex < this.allData.length) {
           stack.items.push(this.allData[dataIndex]);
+          this.visibleIndexMap[stackIndex][i] = dataIndex;
         } else {
           stack.items.push('');
+          this.visibleIndexMap[stackIndex][i] = -1;
         }
       }
     });
   }
 
+  // Return a descending number like admin: total - index
+  getItemNumber(itemIndex: number, stackIndex: number): number | null {
+    const absoluteIndex = this.visibleIndexMap?.[stackIndex]?.[itemIndex] ?? -1;
+    if (absoluteIndex < 0) return null;
+    return this.allData.length - absoluteIndex;
+  }
+
   getItemTransform(index: number, stackIndex: number): string {
     // Use different values based on menu state
     const currentItemHeight = this.isMenuOpen ? 40 : 50;
-    const currentItemGap = this.isMenuOpen ? 60 : 32;
+    const currentItemGap = 64; // increased row gap handled by TS transforms
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     const fractionalScroll =
       (this.scrollPosition % itemHeightWithGap) / itemHeightWithGap;
     const stack = this.stacks[stackIndex];
 
-    if (stack.direction === 'increasing') {
-      // Normal direction - slide up
-      return `translateY(${-fractionalScroll * itemHeightWithGap}px)`;
-    } else {
-      // Reverse direction - slide down
-      return `translateY(${fractionalScroll * itemHeightWithGap}px)`;
-    }
+    // Base movement for smooth scroll depending on direction
+    const baseTranslate = stack.direction === 'increasing'
+      ? -fractionalScroll * itemHeightWithGap
+      : fractionalScroll * itemHeightWithGap;
+
+    // Add fixed per-item gap offset so spacing comes from TS, not CSS
+    const gapOffset = index * currentItemGap;
+
+    return `translateY(${baseTranslate + gapOffset}px)`;
   }
 
   getItemTransition(index: number): string {
