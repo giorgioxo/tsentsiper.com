@@ -10,6 +10,11 @@ interface ApiResponse {
   data: string[];
 }
 
+interface CategoriesResponseRow {
+  name: string;
+  count: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,16 +22,24 @@ export class DataService {
   private apiUrl = environment.apiUrl;
   private projectDataSubject = new BehaviorSubject<string[]>([]);
   public projectData$ = this.projectDataSubject.asObservable();
+  private categoriesSubject = new BehaviorSubject<CategoriesResponseRow[]>([]);
+  public categories$ = this.categoriesSubject.asObservable();
+  private selectedCategorySubject = new BehaviorSubject<string | null>(null);
+  public selectedCategory$ = this.selectedCategorySubject.asObservable();
 
   constructor(private http: HttpClient) {
+    this.loadCategories();
     this.loadProjectData();
   }
 
   // Load project data from backend
-  loadProjectData(): void {
-    console.log('Loading data from:', `${this.apiUrl}/projects`);
-    
-    this.http.get<ApiResponse>(`${this.apiUrl}/projects`)
+  loadProjectData(category?: string | null): void {
+    const url = category && category.trim()
+      ? `${this.apiUrl}/projects?category=${encodeURIComponent(category.trim())}`
+      : `${this.apiUrl}/projects`;
+    console.log('Loading data from:', url);
+
+    this.http.get<ApiResponse>(url)
       .pipe(
         tap(response => {
           console.log('API Response:', response);
@@ -48,6 +61,23 @@ export class DataService {
       });
   }
 
+  // Load categories from backend
+  loadCategories(): void {
+    this.http.get<{ success: boolean; count: number; data: CategoriesResponseRow[] }>(`${this.apiUrl}/categories`)
+      .pipe(
+        tap(response => {
+          if (response?.success && Array.isArray(response.data)) {
+            this.categoriesSubject.next(response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('Failed to load categories:', error);
+          return of({ success: false, count: 0, data: [] });
+        })
+      )
+      .subscribe();
+  }
+
   // Get project data synchronously (returns current value)
   getProjectData(): string[] {
     return this.projectDataSubject.value;
@@ -61,6 +91,12 @@ export class DataService {
   // Update project data (for CRUD operations)
   updateProjectData(data: string[]): void {
     this.projectDataSubject.next(data);
+  }
+
+  // Set selected category and reload data
+  setCategory(category: string | null): void {
+    this.selectedCategorySubject.next(category?.trim() || null);
+    this.loadProjectData(category);
   }
 
   // Add new project

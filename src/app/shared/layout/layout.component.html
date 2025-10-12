@@ -22,15 +22,14 @@
         </svg>
         
     </div>
+    <div class="current-category" *ngIf="currentCategory as cat">{{ cat }}</div>
   </div>
   
   <!-- Navigation Menu -->
   <div class="navigation-menu" [class.show]="isNavigationMenuOpen">
-    <div class="menu-item">Service design</div>
-    <div class="menu-item">Branding</div>
-    <div class="menu-item">Experience design</div>
-    <div class="menu-item">Product</div>
-    <div class="menu-item">Strategy</div>
+    <div class="menu-scroll">
+      <div class="menu-item" *ngFor="let c of categories" (click)="selectCategory(c.name)">{{ c.name }}</div>
+    </div>
   </div>
   
   <div class="content" [class.scaled]="isNavigationMenuOpen">
