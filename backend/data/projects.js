@@ -1,5 +1,5 @@
 const projectData = [
-  `Major grocery store chain: Self-checkout process redesigwqewqewqen`,
+  `qweqwewqeqw`,
   `Lifestyle media publisher: Openair music and culture festival`,
   `Telemetrics manufacturer: Digital ecosystem strategy for fleet owners`,
   `Mixed-use developer: Product concept for a 12.4 acres urban redevelopment project`,

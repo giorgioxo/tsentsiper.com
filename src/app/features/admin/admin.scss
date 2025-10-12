@@ -227,9 +227,12 @@
 }
 
 .edit-mode {
-  background: #FF00041A;
-  padding: 8px;
-  border-radius: 4px;
+  .description-text,
+  .edit-textarea {
+    background: #FF00041A;
+    padding: 8px;
+    border-radius: 4px;
+  }
 }
 
 .add-textarea {
