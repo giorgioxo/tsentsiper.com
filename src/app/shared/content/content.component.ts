@@ -90,8 +90,8 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   private calculateItemsPerStack() {
     // Calculate how many items fit in viewport height with gaps
     // Use different values based on menu state
-    const currentItemHeight = this.isMenuOpen ? 40 : 50; // 20% smaller when menu open
-    const currentItemGap = 64; // increased row gap handled by TS transforms
+    const currentItemHeight = this.isMenuOpen ? 25 : 50; // 50% smaller when menu open
+    const currentItemGap = this.isMenuOpen ? 32 : 32; // 32px row gap when menu is open
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     this.itemsPerStack = Math.floor(this.viewportHeight / itemHeightWithGap);
   }
@@ -101,7 +101,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     // When menu is open, use full width minus margins (32px on each side)
     const availableWidth = this.isMenuOpen ? window.innerWidth - 64 : window.innerWidth - 300 - 35;
     const stackWidth = this.isMenuOpen ? 84 : 140; // 60% of 140px = 84px when menu open
-    const stackGap = this.isMenuOpen ? 0 : 104; // Column gap logic left as-is
+    const stackGap = this.isMenuOpen ? 0 : 104; // We'll offset columns via translateX when menu is open
 
     // Calculate maximum stacks that fit
     let maxStacks = 1;
@@ -253,8 +253,8 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
     const numberOfStacks = this.calculateNumberOfStacks();
     const totalVisibleItems = numberOfStacks * this.itemsPerStack;
 
-    const currentItemHeight = this.isMenuOpen ? 40 : 50;
-    const currentItemGap = 64; // use the same gap used in transforms
+    const currentItemHeight = this.isMenuOpen ? 25 : 50;
+    const currentItemGap = this.isMenuOpen ? 32 : 32; // use the same gap used in transforms
     const itemHeightWithGap = currentItemHeight + currentItemGap;
 
     const maxBaseOffset = Math.max(0, this.allData.length - totalVisibleItems);
@@ -268,8 +268,8 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
   private updateStacks() {
     // Calculate base scroll offset using item height with gap
     // Use different values based on menu state
-    const currentItemHeight = this.isMenuOpen ? 40 : 50;
-    const currentItemGap = 64; // increased row gap handled by TS transforms
+    const currentItemHeight = this.isMenuOpen ? 25 : 50;
+    const currentItemGap = this.isMenuOpen ? 32 : 32; // 32px row gap when menu open
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     const baseOffset = Math.floor(this.scrollPosition / itemHeightWithGap);
 
@@ -308,8 +308,8 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getItemTransform(index: number, stackIndex: number): string {
     // Use different values based on menu state
-    const currentItemHeight = this.isMenuOpen ? 40 : 50;
-    const currentItemGap = 64; // increased row gap handled by TS transforms
+    const currentItemHeight = this.isMenuOpen ? 25 : 50;
+    const currentItemGap = this.isMenuOpen ? 32 : 32; // 32px row gap when menu open
     const itemHeightWithGap = currentItemHeight + currentItemGap;
     const fractionalScroll =
       (this.scrollPosition % itemHeightWithGap) / itemHeightWithGap;
@@ -322,8 +322,9 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Add fixed per-item gap offset so spacing comes from TS, not CSS
     const gapOffset = index * currentItemGap;
+    const columnOffsetX = this.isMenuOpen ? stackIndex * 72 : 0; // 72px column spacing via transform
 
-    return `translateY(${baseTranslate + gapOffset}px)`;
+    return `translate(${columnOffsetX}px, ${baseTranslate + gapOffset}px)`;
   }
 
   getItemTransition(index: number): string {

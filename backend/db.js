@@ -110,6 +110,9 @@ async function init({ adminCredentials = [], seedAllPath, seedCategoriesPath } =
       console.error('Seeding error:', err);
     }
   }
+
+  // Category normalization intentionally disabled per requirement to delete/remove 'Brand'
+  // Leaving this block empty prevents automatic Brand→Branding merge on startup.
 }
 
 function parseAllData(content) {
@@ -208,7 +211,19 @@ async function validateUser(username, password) {
 }
 
 async function getProjectsStrings() {
-  const rows = await all(db, 'SELECT text FROM projects ORDER BY created_at DESC');
+  // Exclude projects that belong to the 'Brand' category from the global feed
+  const rows = await all(
+    db,
+    `SELECT text FROM projects
+     WHERE id NOT IN (
+       SELECT pc.project_id
+       FROM project_categories pc
+       JOIN categories c ON c.id = pc.category_id
+       WHERE LOWER(c.name) = LOWER(?)
+     )
+     ORDER BY created_at DESC`,
+    ['Brand']
+  );
   return rows.map(r => r.text);
 }
 
@@ -236,6 +251,25 @@ async function getCategoriesWithCounts() {
      ORDER BY c.name ASC`
   );
   return rows;
+}
+
+async function mergeCategory(fromName, toName) {
+  const from = await get(db, 'SELECT id, name FROM categories WHERE LOWER(name) = LOWER(?)', [fromName]);
+  if (!from) return; // nothing to do
+  let to = await get(db, 'SELECT id, name FROM categories WHERE LOWER(name) = LOWER(?)', [toName]);
+  if (!to) {
+    await run(db, 'INSERT INTO categories (name) VALUES (?)', [toName]);
+    to = await get(db, 'SELECT id, name FROM categories WHERE LOWER(name) = LOWER(?)', [toName]);
+  }
+  if (!to) return;
+
+  // Copy relations and avoid duplicates via INSERT OR IGNORE
+  await run(db, `INSERT OR IGNORE INTO project_categories (project_id, category_id)
+                SELECT project_id, ? FROM project_categories WHERE category_id = ?`, [to.id, from.id]);
+  // Remove old relations
+  await run(db, 'DELETE FROM project_categories WHERE category_id = ?', [from.id]);
+  // Delete old category
+  await run(db, 'DELETE FROM categories WHERE id = ?', [from.id]);
 }
 
 async function addProjectText(text) {

@@ -67,7 +67,8 @@ export class DataService {
       .pipe(
         tap(response => {
           if (response?.success && Array.isArray(response.data)) {
-            this.categoriesSubject.next(response.data);
+            const filtered = response.data.filter(r => r?.name?.toLowerCase() !== 'brand');
+            this.categoriesSubject.next(filtered);
           }
         }),
         catchError(error => {

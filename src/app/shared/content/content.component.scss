@@ -14,7 +14,7 @@
 
 /* When parent content is scaled (menu is open) */
 :host-context(.scaled) .content-grid {
-  gap: 0; /* Remove fixed gap */
+  gap: 0; /* Remove fixed gap; we handle 60px via TS translateX */
   margin: 32px; /* 32px margins on all sides - perfect distance from walls */
   height: calc(100vh - 64px); /* Account for 32px top and bottom margins */
   justify-content: center; /* Center the content */
@@ -57,7 +57,7 @@
   text-align: left;
   padding: 0;
   margin: 0;
-  height: 50px; /* Normal height */
+  height: 100px; /* Normal height */
   display: flex;
   align-items: flex-start; /* top-left */
   justify-content: flex-start;
@@ -68,9 +68,14 @@
 
 /* When menu is open - apply smaller sizing */
 :host-context(.scaled) .text-item {
-  font-size: 9.6px; /* 20% smaller: 12px * 0.8 = 9.6px */
-  height: 40px; /* 20% smaller: 50px * 0.8 = 40px */
+  font-size: 6px; /* 50% smaller */
+  height: 25px; /* 50% smaller */
 }
+
+:host-context(.scaled) .text-number {
+  font-size: 6px; /* match scaled font when menu open */
+}
+
 
 /* New styles for automated number and body */
 .text-number {
