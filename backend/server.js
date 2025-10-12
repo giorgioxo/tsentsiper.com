@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-let projectData = require('./data/projects');
+
+const { init, validateUser, getProjectsStrings, addProjectText, updateProjectByIndex, deleteProjectByIndex } = require('./db');
+const { getProjectsStringsByCategory, getCategoriesWithCounts } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,163 +13,141 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Mock credentials
-const ADMIN_CREDENTIALS = [
-  { username: 'Admin',     password: 'Tsent500$' },
-  { username: 'ADMINX',    password: 'Tsent500$' },
-  { username: 'UserTsent', password: 'Tsent@2025' },
-  { username: 'AdminEnv',  password: 'Tsentsiper2025@' }
-];
+// Disable caching to avoid 304 for API responses
+app.set('etag', false);
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+
+// Initialize DB and seed from local files if present
+init({
+  adminCredentials: [
+    { username: 'Admin',     password: 'Tsent500$' },
+    { username: 'ADMINX',    password: 'Tsent500$' },
+    { username: 'UserTsent', password: 'Tsent@2025' },
+    { username: 'AdminEnv',  password: 'Tsentsiper2025@' }
+  ],
+  seedAllPath: 'C:/Users/User/OneDrive/Desktop/All data.txt',
+  seedCategoriesPath: 'C:/Users/User/OneDrive/Desktop/filtered data by category..txt'
+}).then(() => console.log('SQLite initialized')).catch(err => console.error('SQLite init error:', err));
 
 // Routes
 app.get('/', (req, res) => {
   res.json({
     message: 'Tsentsiper API Server',
-    version: '1.0.0',
+    version: '1.2.0',
     endpoints: {
       login: '/api/auth/login',
       projects: '/api/projects',
+      categories: '/api/categories',
       health: '/api/health'
     }
   });
 });
 
-// Login endpoint
-app.post('/api/auth/login', (req, res) => {
+// Login endpoint (DB only)
+app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
-
   if (!username || !password) {
-    return res.status(400).json({
-      success: false,
-      message: 'Username and password are required'
-    });
+    return res.status(400).json({ success: false, message: 'Username and password are required' });
   }
+  try {
+    const ok = await validateUser(String(username).trim(), String(password).trim());
+    if (!ok) return res.status(401).json({ success: false, message: 'Invalid username or password' });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Authentication failed' });
+  }
+  const token = generateToken(username);
+  res.json({ success: true, message: 'Login successful', token, user: { username, role: 'admin' } });
+});
 
-  const normalizedUsername = String(username).trim();
-  const normalizedPassword = String(password).trim();
-
-  // Debug logging
-  console.log('Login attempt for user:', normalizedUsername);
-  console.log('Available credentials:');
-  ADMIN_CREDENTIALS.forEach((cred, i) => {
-    console.log(`  ${i}: username="${cred.username}" password="${cred.password}"`);
-  });
-
-  const isValid = ADMIN_CREDENTIALS.some(cred => {
-    const usernameMatch = cred.username.toLowerCase() === normalizedUsername.toLowerCase();
-    const passwordMatch = cred.password === normalizedPassword;
-    console.log(`Checking ${cred.username}: usernameMatch=${usernameMatch}, passwordMatch=${passwordMatch}`);
-    return usernameMatch && passwordMatch;
-  });
-
-  if (isValid) {
-    // Generate mock token
-    const token = generateToken(username);
-    
-    res.json({
-      success: true,
-      message: 'Login successful',
-      token: token,
-      user: {
-        username: username,
-        role: 'admin'
-      }
-    });
-  } else {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid username or password'
-    });
+// Get projects (optional category filter)
+app.get('/api/projects', async (req, res) => {
+  const category = (req.query?.category || '').trim();
+  try {
+    const data = category ? await getProjectsStringsByCategory(category) : await getProjectsStrings();
+    res.json({ success: true, count: data.length, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: 'Failed to load projects' });
   }
 });
 
-// Get all projects
-app.get('/api/projects', (req, res) => {
-  res.json({
-    success: true,
-    count: projectData.length,
-    data: projectData
-  });
-});
-
-// Add new project (adds to top)
-app.post('/api/projects', (req, res) => {
+// Add project
+app.post('/api/projects', async (req, res) => {
   const { text } = req.body || {};
   if (!text || typeof text !== 'string' || !text.trim()) {
     return res.status(400).json({ success: false, message: 'Text is required' });
   }
-
-  projectData = [text.trim(), ...projectData];
   try {
-    saveProjectData(projectData);
-    res.json({ success: true, count: projectData.length, data: projectData });
+    await addProjectText(text);
+    const data = await getProjectsStrings();
+    res.json({ success: true, count: data.length, data });
   } catch (e) {
-    console.error('Failed to save project data:', e);
-    res.status(500).json({ success: false, message: 'Failed to persist data' });
+    res.status(500).json({ success: false, message: 'Failed to add project' });
   }
 });
 
-// Update project by index
-app.put('/api/projects/:index', (req, res) => {
+// Update project by index in DESC order
+app.put('/api/projects/:index', async (req, res) => {
   const index = Number(req.params.index);
   const { text } = req.body || {};
-  if (!Number.isInteger(index) || index < 0 || index >= projectData.length) {
+  if (!Number.isInteger(index) || index < 0) {
     return res.status(400).json({ success: false, message: 'Invalid index' });
   }
   if (!text || typeof text !== 'string' || !text.trim()) {
     return res.status(400).json({ success: false, message: 'Text is required' });
   }
-
-  projectData[index] = text.trim();
   try {
-    saveProjectData(projectData);
-    res.json({ success: true, count: projectData.length, data: projectData });
+    const ok = await updateProjectByIndex(index, text);
+    if (!ok) return res.status(400).json({ success: false, message: 'Invalid index' });
+    const data = await getProjectsStrings();
+    res.json({ success: true, count: data.length, data });
   } catch (e) {
-    console.error('Failed to save project data:', e);
-    res.status(500).json({ success: false, message: 'Failed to persist data' });
+    res.status(500).json({ success: false, message: 'Failed to update project' });
   }
 });
 
-// Delete project by index
-app.delete('/api/projects/:index', (req, res) => {
+// Delete project by index in DESC order
+app.delete('/api/projects/:index', async (req, res) => {
   const index = Number(req.params.index);
-  if (!Number.isInteger(index) || index < 0 || index >= projectData.length) {
+  if (!Number.isInteger(index) || index < 0) {
     return res.status(400).json({ success: false, message: 'Invalid index' });
   }
-
-  projectData.splice(index, 1);
   try {
-    saveProjectData(projectData);
-    res.json({ success: true, count: projectData.length, data: projectData });
+    const ok = await deleteProjectByIndex(index);
+    if (!ok) return res.status(400).json({ success: false, message: 'Invalid index' });
+    const data = await getProjectsStrings();
+    res.json({ success: true, count: data.length, data });
   } catch (e) {
-    console.error('Failed to save project data:', e);
-    res.status(500).json({ success: false, message: 'Failed to persist data' });
+    res.status(500).json({ success: false, message: 'Failed to delete project' });
+  }
+});
+
+// List categories with counts
+app.get('/api/categories', async (req, res) => {
+  try {
+    const rows = await getCategoriesWithCounts();
+    res.json({ success: true, count: rows.length, data: rows });
+  } catch (e) {
+    res.status(500).json({ success: false, message: 'Failed to load categories' });
   }
 });
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found'
-  });
+  res.status(404).json({ success: false, message: 'Endpoint not found' });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error'
-  });
+  res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
 // Helper function to generate mock token
@@ -176,27 +156,10 @@ function generateToken(username) {
   const payload = Buffer.from(JSON.stringify({ 
     sub: username, 
     iat: Date.now(),
-    exp: Date.now() + (30 * 60 * 1000) // 30 minutes
+    exp: Date.now() + (30 * 60 * 1000)
   })).toString('base64');
   const signature = Buffer.from('mock-signature-' + Date.now()).toString('base64');
-  
   return `${header}.${payload}.${signature}`;
-}
-
-// Persist data back to backend/data/projects.js
-function saveProjectData(data) {
-  const filePath = path.join(__dirname, 'data', 'projects.js');
-  const serialized = serializeProjectArray(data);
-  fs.writeFileSync(filePath, serialized, 'utf8');
-}
-
-function escapeBackticks(text) {
-  return String(text).replace(/`/g, '\\`');
-}
-
-function serializeProjectArray(arr) {
-  const lines = arr.map(item => `  \`${escapeBackticks(item)}\``).join(',\n');
-  return `const projectData = [\n${lines}\n];\n\nmodule.exports = projectData;\n\n`;
 }
 
 // Start server
@@ -205,6 +168,7 @@ app.listen(PORT, () => {
   console.log(`📊 API endpoints:`);
   console.log(`   - POST http://localhost:${PORT}/api/auth/login`);
   console.log(`   - GET  http://localhost:${PORT}/api/projects`);
+  console.log(`   - GET  http://localhost:${PORT}/api/categories`);
   console.log(`   - GET  http://localhost:${PORT}/api/health`);
 });
 
