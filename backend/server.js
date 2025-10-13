@@ -22,8 +22,12 @@ app.use((req, res, next) => {
 
 // Initialize DB. In production, seeding from local files is disabled by default.
 const enableSeed = String(process.env.ENABLE_SEED || '').toLowerCase() === 'true';
-const seedAllPath = process.env.SEED_ALL_PATH;
-const seedCategoriesPath = process.env.SEED_CATEGORIES_PATH;
+function resolveSeedPath(p) {
+  if (!p) return undefined;
+  return path.isAbsolute(p) ? p : path.resolve(__dirname, p);
+}
+const seedAllPath = resolveSeedPath(process.env.SEED_ALL_PATH);
+const seedCategoriesPath = resolveSeedPath(process.env.SEED_CATEGORIES_PATH);
 
 function getAdminCredentials() {
   const raw = process.env.ADMIN_CREDENTIALS_JSON;
