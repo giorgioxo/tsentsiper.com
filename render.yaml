@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: .
     region: oregon
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci && npm --prefix backend ci && npm run build
     startCommand: npm --prefix backend start
     autoDeploy: true
     envVars:
