@@ -48,7 +48,7 @@ init({
 }).then(() => console.log('SQLite initialized')).catch(err => console.error('SQLite init error:', err));
 
 // Routes
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({
     message: 'Tsentsiper API Server',
     version: '1.2.0',
@@ -150,15 +150,19 @@ app.get('/api/categories', async (req, res) => {
 });
 
 // Serve Angular static files from dist (production)
-const DIST_PATH = path.resolve(__dirname, '../dist/tsent/browser');
-const INDEX_HTML = path.join(DIST_PATH, 'index.html');
-if (fs.existsSync(DIST_PATH)) {
-  app.use(express.static(DIST_PATH));
+const possibleDistPaths = [
+  path.resolve(__dirname, '../dist/tsent/browser'),
+  path.resolve(__dirname, '../dist/tsent')
+];
+const distPath = possibleDistPaths.find(p => fs.existsSync(p));
+if (distPath) {
+  const indexHtml = path.join(distPath, 'index.html');
+  app.use(express.static(distPath));
   // SPA fallback for non-API routes
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    if (fs.existsSync(INDEX_HTML)) {
-      return res.sendFile(INDEX_HTML);
+    if (fs.existsSync(indexHtml)) {
+      return res.sendFile(indexHtml);
     }
     return next();
   });
