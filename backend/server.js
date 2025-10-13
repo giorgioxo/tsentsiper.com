@@ -20,16 +20,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize DB and seed from local files if present
-init({
-  adminCredentials: [
+// Initialize DB. In production, seeding from local files is disabled by default.
+const enableSeed = String(process.env.ENABLE_SEED || '').toLowerCase() === 'true';
+const seedAllPath = process.env.SEED_ALL_PATH;
+const seedCategoriesPath = process.env.SEED_CATEGORIES_PATH;
+
+function getAdminCredentials() {
+  const raw = process.env.ADMIN_CREDENTIALS_JSON;
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+  return [
     { username: 'Admin',     password: 'Tsent500$' },
     { username: 'ADMINX',    password: 'Tsent500$' },
     { username: 'UserTsent', password: 'Tsent@2025' },
     { username: 'AdminEnv',  password: 'Tsentsiper2025@' }
-  ],
-  seedAllPath: 'C:/Users/User/OneDrive/Desktop/All data.txt',
-  seedCategoriesPath: 'C:/Users/User/OneDrive/Desktop/filtered data by category..txt'
+  ];
+}
+
+init({
+  adminCredentials: getAdminCredentials(),
+  seedAllPath: enableSeed ? seedAllPath : undefined,
+  seedCategoriesPath: enableSeed ? seedCategoriesPath : undefined
 }).then(() => console.log('SQLite initialized')).catch(err => console.error('SQLite init error:', err));
 
 // Routes
@@ -133,6 +148,21 @@ app.get('/api/categories', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to load categories' });
   }
 });
+
+// Serve Angular static files from dist (production)
+const DIST_PATH = path.resolve(__dirname, '../dist/tsent/browser');
+const INDEX_HTML = path.join(DIST_PATH, 'index.html');
+if (fs.existsSync(DIST_PATH)) {
+  app.use(express.static(DIST_PATH));
+  // SPA fallback for non-API routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    if (fs.existsSync(INDEX_HTML)) {
+      return res.sendFile(INDEX_HTML);
+    }
+    return next();
+  });
+}
 
 // Health check
 app.get('/api/health', (req, res) => {

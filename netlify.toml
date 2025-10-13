@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = "dist/tsent/browser"
+
+# Proxy API calls from the frontend to the deployed backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR_RENDER_BACKEND_URL/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback for Angular router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+
