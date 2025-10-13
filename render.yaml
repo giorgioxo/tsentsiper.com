@@ -11,6 +11,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       # Seeding is disabled by default in production. Set to "true" and provide file paths if needed.
       - key: ENABLE_SEED
         value: "false"
