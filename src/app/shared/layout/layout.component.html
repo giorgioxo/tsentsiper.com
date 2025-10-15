@@ -29,7 +29,16 @@
   <div class="navigation-menu" [class.show]="isNavigationMenuOpen">
     <div class="menu-scroll">
       <div class="menu-item" *ngFor="let c of categories" (click)="selectCategory(c.name)">
-        <span class="category-text">{{ c.name }}</span>
+        <img *ngIf="c.name === 'Branding'" src="assets/branding.svg" alt="Branding" class="category-svg">
+        <img *ngIf="c.name === 'Content'" src="assets/content.svg" alt="Content" class="category-svg">
+        <img *ngIf="c.name === 'Digital design'" src="assets/digitaldesign.svg" alt="Digital design" class="category-svg">
+        <img *ngIf="c.name === 'Experience design'" src="assets/experience.svg" alt="Experience design" class="category-svg">
+        <img *ngIf="c.name === 'Product design'" src="assets/product.svg" alt="Product design" class="category-svg">
+        <img *ngIf="c.name === 'Service design'" src="assets/service.svg" alt="Service design" class="category-svg">
+        <img *ngIf="c.name === 'Spatial design'" src="assets/spartial.svg" alt="Spatial design" class="category-svg">
+        <img *ngIf="c.name === 'Strategy'" src="assets/strategy.svg" alt="Strategy" class="category-svg">
+        <img *ngIf="c.name === 'Industrial design'" src="assets/product.svg" alt="Industrial design" class="category-svg">
+        <img *ngIf="c.name === 'Interior design'" src="assets/spartial.svg" alt="Interior design" class="category-svg">
       </div>
     </div>
   </div>
