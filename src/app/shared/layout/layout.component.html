@@ -28,7 +28,9 @@
   <!-- Navigation Menu -->
   <div class="navigation-menu" [class.show]="isNavigationMenuOpen">
     <div class="menu-scroll">
-      <div class="menu-item" *ngFor="let c of categories" (click)="selectCategory(c.name)">{{ c.name }}</div>
+      <div class="menu-item" *ngFor="let c of categories" (click)="selectCategory(c.name)">
+        <span class="category-text">{{ c.name }}</span>
+      </div>
     </div>
   </div>
   

@@ -40,4 +40,5 @@ export class LayoutComponent {
     this.isNavigationMenuOpen = false;
     this.menuService.setMenuOpen(false);
   }
+
 }
